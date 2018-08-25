@@ -47,7 +47,7 @@ class EntitiesInline(admin.TabularInline):
 
 class EntitiesAdmin(admin.ModelAdmin):
     inlines = [ValuesInline]
-    list_display = ('type', 'synonyms', 'extensible')
+    list_display = ('entity','type', 'synonyms', 'extensible')
     list_filter = ['type', 'synonyms', 'extensible']
     search_fields = ['entity']
 
