@@ -3,13 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
 </head>
 <body>
-{% if data %}
-    <div style="width:600px; padding-left: 25%; text-align: center;">{{ data }} </div>
-{% else %}
-    <p>Error</p>
-{% endif %}
+<div class="topnav">
+    {% csrf_token %}
 
+    <input id="searchbar" type="text" placeholder="Search..">
+    <button onclick="search()">
+        Buscar
+    </button>
+
+</div>
+<div>
+    <p id="response"></p>
+</div>
+
+<script type="text/javascript">
+     var csrftoken = Cookies.get('csrftoken');
+    function search() {
+        var query = document.getElementById("searchbar").value;
+        var clean_query = "";
+        for (var i = 0; i < query.length; i++) {
+            if (query.charAt(i) === ' ') {
+                clean_query += '+'
+            } else {
+                clean_query += query.charAt(i)
+            }
+        }
+        var URL = "http://127.0.0.1:8000/engine/resolve=" + clean_query;
+        makeAjaxCall(URL, "POST").then(function (respJson) {
+            console.log(respJson);
+            document.getElementById("response").innerHTML = respJson['input'];
+        }, function (reason) {
+            console.log("error in processing your request", reason);
+        });
+    }
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+    function makeAjaxCall(url, methodType, callback) {
+        return $.ajax({
+            url: url,
+            method: methodType,
+            dataType: "json",
+            beforeSend: function (xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        })
+    }
+
+
+</script>
 </body>
 </html>

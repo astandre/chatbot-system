@@ -18,6 +18,7 @@ semantic-version==2.6.0
 six==1.11.0
 sklearn-crfsuite==0.3.6
 snips-nlu==0.16.2
+snips-nlu-es==0.2.0
 snips-nlu-ontology==0.57.3
 snips-nlu-utils==0.6.1
 tabulate==0.8.2

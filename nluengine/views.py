@@ -1,26 +1,38 @@
-from django.shortcuts import render
 from django.template import loader
-from django.http import HttpResponse
-from .models import Intents, Questions, Entities
+from django.http import HttpResponse, JsonResponse
 from .engine import *
-import json
+from rest_framework.decorators import api_view
+from django.views.decorators.csrf import csrf_exempt
 
 
 # Create your views here.
 
-def nlu_engine(request):
+def search_bar(request):
     """
-    View of the main page
+    View of the search bar page
     """
-
-
-    data = getTrainingData()
-    # print(data)
-    # print(type(data))
-    # data_json = json.loads(data)
-    # print(data_json)
     template = loader.get_template('nluengine/search.html')
     context = {
-        'data': data,
     }
     return HttpResponse(template.render(context, request))
+
+
+@api_view(['POST'])
+def nlu_engine(request, query):
+    """
+    End point where user request must arrive.
+    :param request:
+    :return:
+    """
+    if request.method == 'POST':
+        print('POST')
+        print(query)
+        clean_query = ''
+        for character in  query:
+            if character == '+':
+                clean_query += ' '
+            else:
+                clean_query += character
+
+        response = resolve_query(clean_query)
+        return JsonResponse(response)
