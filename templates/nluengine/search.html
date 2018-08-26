@@ -1,63 +1,78 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+{% extends 'base.html' %}
+{% load static %}
+{% block header %}
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
-</head>
-<body>
-<div class="topnav">
-    {% csrf_token %}
+    <link rel="stylesheet" type="text/css" href="{% static 'nluengine/css/search_style.css' %}">
+{% endblock %}
+{% block title %}Search{% endblock %}
+{% block main %}
+    <div class="search-container">
 
-    <input id="searchbar" type="text" placeholder="Search..">
-    <button onclick="search()">
-        Buscar
-    </button>
+        <img src="{% static 'nluengine/img/openCampuslogo.png' %}" alt="">
+        <h1>Knowledge Engine</h1>
 
-</div>
-<div>
-    <p id="response"></p>
-</div>
+        <div class="search-form">
+            {% csrf_token %}
+            {% if question_hint %}
+                <input id="searchbar" type="text" placeholder="{{ question_hint.question }} ">
+            {% else %}
+                <p>Error</p>
+            {% endif %}
+            <button class="btn-search"><img src="{% static 'nluengine/img/magnifier-tool.png' %}" onclick="search()"
+                                            alt=""></button>
+        </div>
 
-<script type="text/javascript">
-     var csrftoken = Cookies.get('csrftoken');
-    function search() {
-        var query = document.getElementById("searchbar").value;
-        var clean_query = "";
-        for (var i = 0; i < query.length; i++) {
-            if (query.charAt(i) === ' ') {
-                clean_query += '+'
-            } else {
-                clean_query += query.charAt(i)
-            }
-        }
-        var URL = "http://127.0.0.1:8000/engine/resolve=" + clean_query;
-        makeAjaxCall(URL, "POST").then(function (respJson) {
-            console.log(respJson);
-            document.getElementById("response").innerHTML = respJson['input'];
-        }, function (reason) {
-            console.log("error in processing your request", reason);
-        });
-    }
-    function csrfSafeMethod(method) {
-        // these HTTP methods do not require CSRF protection
-        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-    }
-    function makeAjaxCall(url, methodType, callback) {
-        return $.ajax({
-            url: url,
-            method: methodType,
-            dataType: "json",
-            beforeSend: function (xhr, settings) {
-                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        <p id="response"></p>
+    </div>
+    <script type="text/javascript">
+        $("#response").hide();
+        var csrftoken = Cookies.get('csrftoken');
+
+        function search() {
+            var query = document.getElementById("searchbar").value;
+            var clean_query = "";
+            for (var i = 0; i < query.length; i++) {
+                if (query.charAt(i) === ' ') {
+                    clean_query += '+'
+                } else {
+                    clean_query += query.charAt(i)
                 }
             }
-        })
-    }
+            $("#response").empty();
+            $("#searchbar").val('');
+            if (clean_query.length > 2) {
+                var URL = "http://127.0.0.1:8000/engine/resolve=" + clean_query;
+                makeAjaxCall(URL, "POST").then(function (respJson) {
+                    console.log(respJson);
+                    if (respJson['intent'] != null) {
+                        $("#response").show()
+                            .append($.parseHTML("<i>" + respJson['answer'] + "</i>"));
+                    } else {
+                        $("#response").show()
+                            .append($.parseHTML("Aun no conozco a que te refieres con: <i>" + respJson['input'] + "</i>"));
+                    }
+                }, function (reason) {
+                    console.log("error in processing your request", reason);
+                });
+            }
+        }
 
+        function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
 
-</script>
-</body>
-</html>
+        function makeAjaxCall(url, methodType, callback) {
+            return $.ajax({
+                url: url,
+                method: methodType,
+                dataType: "json",
+                beforeSend: function (xhr, settings) {
+                    if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
+                }
+            })
+        }
+    </script>
+{% endblock %}

@@ -132,10 +132,21 @@ def get_training_data():
 def train_engine():
     data_json = json.loads(get_training_data())
     engine.fit(data_json)
+    print("training")
 
 
 def resolve_query(text):
-    return engine.parse(text)
+    intent = engine.parse(text)
+    response = {}
+    if intent['intent'] is not None:
+        response["intent"] = intent['intent']
+        response["slots"] = intent['slots']
+        answer = Intents.objects.values('answer').filter(name__iexact=response['intent']['intentName'])
+        response['answer'] = answer[0]['answer']
+    else:
+        response["intent"] = None
+        response["input"] = intent['input']
+    return response
 
 
 load_resources("snips_nlu_es")
