@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block header %}
+    <link rel="stylesheet" type="text/css" href="{% static 'nluengine/css/knowledge_style.css' %}">
+{% endblock %}
+{% block title %}Knowledge{% endblock %}
+{% block main %}
+    <pre id="json"></pre>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            console.log("ready!");
+            {#var URL = "http://127.0.0.1:8000/engine/api/knowledge/";#}
+            var URL = "{% url 'knowledge_api' %}";
+            makeAjaxCall(URL, "GET").then(function (respJson) {
+                document.getElementById("json").innerHTML = JSON.stringify(respJson, undefined, 2);
+
+            }, function (reason) {
+                console.log("error in processing your request", reason);
+            });
+
+        });
+        function makeAjaxCall(url, methodType, callback) {
+            return $.ajax({
+                url: url,
+                method: methodType,
+                dataType: "json",
+            })
+        }
+    </script>
+{% endblock %}

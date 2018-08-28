@@ -6,9 +6,9 @@ from django.db import models
 # TODO add help text
 class Intents(models.Model):
     id_intent = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=30, null=False,unique=True)
+    name = models.CharField(max_length=30, null=False, unique=True)
     description = models.CharField(max_length=200, null=False)
-    answer = models.CharField(max_length=400, null=False)
+    answer = models.CharField(max_length=400, blank=True, null=False)
 
     # next = models.ForeignKey(BotQuestions, on_delete=models.CASCADE)
 
@@ -21,10 +21,11 @@ class Intents(models.Model):
     def __str__(self):
         return self.name
 
+
 # TODO fix typping
 class Questions(models.Model):
     id_questions = models.AutoField(primary_key=True)
-    question = models.CharField(max_length=200, null=False,unique=True)
+    question = models.CharField(max_length=200, null=False, unique=True)
     intent = models.ForeignKey(Intents, on_delete=models.CASCADE, null=False)
 
     class Meta:
@@ -34,7 +35,7 @@ class Questions(models.Model):
         db_table = 'questions'
 
     def __str__(self):
-        return self.question[0:20]
+        return self.question
 
 
 class Entities(models.Model):
@@ -45,7 +46,7 @@ class Entities(models.Model):
         (VALUE, 'Value')
     )
     id_entity = models.AutoField(primary_key=True)
-    entity = models.CharField(max_length=100, null=False,unique=True)
+    entity = models.CharField(max_length=100, null=False, unique=True)
     type = models.CharField(
         max_length=2,
         choices=ENTITIES_CHOICES,

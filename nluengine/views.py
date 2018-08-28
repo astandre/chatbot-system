@@ -1,8 +1,11 @@
 from django.template import loader
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from .engine import *
 from rest_framework.decorators import api_view
 import random
+from .forms import UploadFileForm
+from .datahandler import *
+from django.shortcuts import render
 
 
 # Create your views here.
@@ -35,4 +38,40 @@ def nlu_engine(request, query):
             else:
                 clean_query += character
         response = resolve_query(clean_query)
+        return JsonResponse(response)
+
+
+def upload_file(request):
+    if request.method == 'POST':
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            if handle_data(request.FILES['file'], form.cleaned_data['field']):
+                return HttpResponseRedirect('/engine/knowledge/')
+        #     TODO handle error
+        else:
+            print("NO  Valido")
+    else:
+        form = UploadFileForm()
+    return render(request, 'nluengine/upload.html', {'form': form})
+
+
+def knowledge(request):
+    """
+    View knowledge JSON
+    """
+    template = loader.get_template('nluengine/knowledge.html')
+    context = {
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@api_view(['GET'])
+def knowledge_api(request):
+    """
+    End point where knowledge data comes
+    :param request:
+    :return:
+    """
+    if request.method == 'GET':
+        response = json.loads(get_training_data())
         return JsonResponse(response)

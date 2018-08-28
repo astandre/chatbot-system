@@ -7,6 +7,7 @@ import json
 
 
 # TODO multiple slots in question
+# TODO check duplicated keys are being obtained in intents
 def get_training_data():
     try:
         intents_list = Intents.objects.values('id_intent', 'name') \
@@ -40,7 +41,7 @@ def get_training_data():
                         if len(question_itearator['question']) == slots_list[0]['e_index']:
                             question_section += '{"data":[{"text":"' + question_itearator['question'][
                                                                        0:slots_list[0]['b_index']] + '"},'
-                            question_section += slot
+                            question_section += slot + ']}'
                         else:
                             question_section += '{"data":[{"text":"' + question_itearator['question'][
                                                                        0:slots_list[0]['b_index']] + '"},'
@@ -48,8 +49,8 @@ def get_training_data():
                             question_section += '{"text":"' + question_itearator['question'][
                                                               slots_list[0]['e_index']:len(
                                                                   question_itearator['question'])] + '"}]}'
-                            if contador_question < intent_iterator['num_questions']:
-                                question_section += ','
+                        if contador_question < intent_iterator['num_questions']:
+                            question_section += ','
                     else:
                         contador_slots = 1
                         # TODO support multiple entities in a question
@@ -137,6 +138,7 @@ def get_training_data():
 
 def train_engine():
     data = get_training_data()
+    print(data)
     if data != "0":
         data_json = json.loads(data)
         print("Training")
