@@ -16,7 +16,7 @@
             {% if question_hint %}
                 <input id="searchbar" type="text" placeholder="{{ question_hint.question }} ">
             {% else %}
-                <p>Error</p>
+                <input id="searchbar" type="text" placeholder="¿Que deseas conocer? ">
             {% endif %}
             <button class="btn-search"><img src="{% static 'nluengine/img/magnifier-tool.png' %}" onclick="search()"
                                             alt=""></button>
