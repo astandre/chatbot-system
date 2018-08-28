@@ -41,15 +41,17 @@
             $("#response").empty();
             $("#searchbar").val('');
             if (clean_query.length > 2) {
-                var URL = "http://127.0.0.1:8000/engine/resolve=" + clean_query;
+                var URL = "/engine/resolve="+clean_query;
                 makeAjaxCall(URL, "POST").then(function (respJson) {
                     console.log(respJson);
                     if (respJson['intent'] != null) {
                         $("#response").show()
-                            .append($.parseHTML("<i>" + respJson['answer'] + "</i>"));
+                            .append($.parseHTML("<i>" + respJson['answer'] + "</i>"))
+                         .css("background-color", "#4ca64c");
                     } else {
                         $("#response").show()
-                            .append($.parseHTML("Aun no conozco a que te refieres con: <i>" + respJson['input'] + "</i>"));
+                            .append($.parseHTML("Aun no conozco a que te refieres con: <i>" + respJson['input'] + "</i>"))
+                            .css("background-color", "#cc0000");
                     }
                 }, function (reason) {
                     console.log("error in processing your request", reason);
