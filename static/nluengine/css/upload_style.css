@@ -1,0 +1,30 @@
+form,#hint-info{
+    background-color: #cccccc;
+    padding: 2% 5%;
+    margin: 10px 20%;
+    width: 45%;
+    position: relative;
+}
+p,pre{
+    margin: 10px;
+}
+select{
+    width: 100px;
+     display: block;
+}
+input[type=submit]{
+     width : 100px;
+    display: block;
+}
+input {
+  width : 300px;
+
+
+  -webkit-box-sizing: border-box; /* For legacy WebKit based browsers */
+     -moz-box-sizing: border-box; /* For legacy (Firefox <29) Gecko based browsers */
+          box-sizing: border-box;
+}
+
+select, input{
+    margin: 5px;
+}

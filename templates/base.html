@@ -10,18 +10,27 @@
     <meta name="description" content="NLU system">
     <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
     <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
-    <link rel="stylesheet"  type="text/css" href="{% static 'base_style.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'base_style.css' %}">
     {% block header %}
     {% endblock %}
     <title>{% block title %}{% endblock %}  </title>
 
 </head>
 <body>
+<header>
+    <nav>
+        <ul>
+            <li><a href="{% url 'search' %}"> Search</a></li>
+            <li><a href="{% url 'knowledge' %}">Knowledge</a></li>
+            <li><a href="{% url 'upload_file' %}">Train</a></li>
+        </ul>
+    </nav>
+</header>
 {% block main %}
 
 {% endblock %}
 <footer>
-		<h6><a href="https://github.com/astandre/chatbot-system"> Acerca de</a></h6>
+    <h6><a href="https://github.com/astandre/chatbot-system"> Acerca de</a></h6>
     {% block footer %}
     {% endblock %}
 </footer>
