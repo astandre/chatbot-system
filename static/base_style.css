@@ -6,6 +6,28 @@ body{
     background-color: white;
     font-family: 'Montserrat', sans-serif;
 }
+header nav ul li{
+    text-decoration: none;
+    display: inline-block;
+    width: 30%;
+    height: 35px;
+    background-color:#cc0000 ;
+    padding-top: 10px;
+    text-align: center;
+}
+header nav ul li:hover{
+    background-color:#ff3232 ;
+}
+header nav ul li a {
+    text-decoration: none;
+    color: white;
+    font-size: larger;
+}
+header nav ul{
+    width: 90%;
+    margin-left: 10%;
+}
+
 footer {
     position: absolute;
     right: 0;

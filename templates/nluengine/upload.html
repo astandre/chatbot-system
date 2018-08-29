@@ -1,9 +1,29 @@
 {% extends 'base.html' %}
 {% load static %}
+{% block header %}
+    <link rel="stylesheet" type="text/css" href="{% static 'nluengine/css/upload_style.css' %}">
+{% endblock %}
+{% block title %}Upload new files to train{% endblock %}
 {% block main %}
-<form action="" method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form }}
-    <input type="submit" value="Submit">
-</form>
+    <form action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" value="Submit">
+    <h3>Los archivos deben ser .csv</h3>
+    </form>
+    <div id="hint-info">
+        <h3>Entities format</h3>
+        <p>Las entidades se deberan trabjar en el formato establecido:</p>
+        <pre>nombreEntidad,valor,sinonimo1,sinonimo2,sinonimo3,</pre>
+        <pre>nombreEntidad2,valor2,sinonimo1,sinonimo2,</pre>
+        <p><b>*Recuerda no dejar espacios entre comas, actualmente no se soportan</b></p>
+        <h3>Intents format</h3>
+        <p>Los intents se deberan trabajar en el formato establecido:</p>
+        <pre>nombreIntent,¿Pregunta?,</pre>
+        <pre>nombreIntent,¿Pregunta [nombre_entidad:slot_name](entidad)?,</pre>
+        <pre>nombreIntent,¿Pregunta [nombre_entidad:slot_name](entidad) continuacion de pregunta?,</pre>
+        <p><b>*Actualmente el sistema soporta una entidad dentro de cada pregunta</b></p>
+    </div>
+
+
 {% endblock %}
