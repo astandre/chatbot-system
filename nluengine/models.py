@@ -7,7 +7,7 @@ from django.db import models
 class Intents(models.Model):
     id_intent = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30, null=False, unique=True)
-    description = models.CharField(max_length=200, null=False)
+    description = models.CharField(max_length=200, null=False, blank=True)
     answer = models.CharField(max_length=400, blank=True, null=False)
 
     # next = models.ForeignKey(BotQuestions, on_delete=models.CASCADE)
