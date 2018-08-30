@@ -19,4 +19,6 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('engine/', include('nluengine.urls')),
+    path('handler/', include('chatbothandler.urls')),
+    path('cursos/', include('cursoshandler.urls')),
 ]

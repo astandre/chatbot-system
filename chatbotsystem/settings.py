@@ -36,6 +36,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'nluengine.apps.NluengineConfig',
+    'chatbothandler.apps.ChatbothandlerConfig',
+    'cursoshandler.apps.CursoshandlerConfig',
     'rest_framework',
 ]
 

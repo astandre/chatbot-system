@@ -2,9 +2,6 @@ from django.contrib import admin
 from .models import *
 
 
-# TODO try to add other searching fields.
-# TODO try to eliminar primary keys
-
 # Register your models here.
 
 
@@ -47,7 +44,7 @@ class EntitiesInline(admin.TabularInline):
 
 class EntitiesAdmin(admin.ModelAdmin):
     inlines = [ValuesInline]
-    list_display = ('entity','type', 'synonyms', 'extensible')
+    list_display = ('entity', 'type', 'synonyms', 'extensible')
     list_filter = ['type', 'synonyms', 'extensible']
     search_fields = ['entity']
 
@@ -75,5 +72,5 @@ admin.site.register(Intents, IntentsAdmin)
 admin.site.register(Questions, QuestionsAdmin)
 admin.site.register(Entities, EntitiesAdmin)
 admin.site.register(Values, ValuesAdmin)
-admin.site.register(Synonyms,SynonymsAdmin)
+admin.site.register(Synonyms, SynonymsAdmin)
 admin.site.register(Slots, SlotsAdmin)
