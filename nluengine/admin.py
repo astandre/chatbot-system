@@ -18,6 +18,7 @@ class SlotsInline(admin.TabularInline):
 class QuestionsAdmin(admin.ModelAdmin):
     inlines = [SlotsInline]
     list_display = ('question', 'intent')
+    list_filter = ['intent']
     search_fields = ['question']
 
 
