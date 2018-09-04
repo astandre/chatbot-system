@@ -163,4 +163,4 @@ def resolve_query(text):
 load_resources("snips_nlu_es")
 engine = SnipsNLUEngine(config=CONFIG_ES)
 
-# train_engine()
+train_engine()
