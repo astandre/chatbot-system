@@ -1,5 +1,7 @@
 *.pyc
 /nluengine/migrations/*.*
+/cursoshandler/migrations/*.*
+/chatbothandler/migrations/*.*
 venv/
 .idea/
 /data/oc_dataset.json
