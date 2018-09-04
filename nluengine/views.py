@@ -6,6 +6,9 @@ import random
 from .forms import UploadFileForm
 from .datahandler import *
 from django.shortcuts import render
+from .serializers import *
+from rest_framework.response import Response
+from rest_framework import status
 
 
 # Create your views here.
@@ -24,21 +27,21 @@ def search_bar(request):
 
 
 @api_view(['POST'])
-def nlu_engine(request, query):
+def nlu_engine(request):
     """
     End point where user request must arrive.
     :param request:
     :return:
     """
     if request.method == 'POST':
-        clean_query = ''
-        for character in query:
-            if character == '+':
-                clean_query += ' '
-            else:
-                clean_query += character
-        response = resolve_query(clean_query)
-        return JsonResponse(response)
+        serializer = QuestionSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            query = serializer.validated_data["query"]
+            intent = resolve_query(query)
+            return Response({"intent": intent["intent"]["intentName"], "slots": intent["slots"],
+                             "answer": intent["answer"]}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 def upload_file(request):

@@ -29,34 +29,25 @@
         var csrftoken = Cookies.get('csrftoken');
 
         function search() {
-            var query = document.getElementById("searchbar").value;
-            var clean_query = "";
-            for (var i = 0; i < query.length; i++) {
-                if (query.charAt(i) === ' ') {
-                    clean_query += '+'
-                } else {
-                    clean_query += query.charAt(i)
-                }
-            }
+            var query = '{"query":"'+ document.getElementById("searchbar").value+'"}';
             $("#response").empty();
             $("#searchbar").val('');
-            if (clean_query.length > 2) {
-                var URL = "/engine/resolve="+clean_query;
-                makeAjaxCall(URL, "POST").then(function (respJson) {
-                    console.log(respJson);
-                    if (respJson['intent'] != null) {
-                        $("#response").show()
-                            .append($.parseHTML("<i>" + respJson['intent']['intentName'] + "</i>"))
-                         .css("background-color", "#4ca64c");
-                    } else {
-                        $("#response").show()
-                            .append($.parseHTML("Aun no conozco a que te refieres con: <i>" + respJson['input'] + "</i>"))
-                            .css("background-color", "#cc0000");
-                    }
-                }, function (reason) {
-                    console.log("error in processing your request", reason);
-                });
-            }
+            var URL = "/engine/resolve/";
+            makeAjaxCall(URL, "POST", query).then(function (respJson) {
+                console.log(respJson);
+                if (respJson['intent'] != null) {
+                    $("#response").show()
+                        .append($.parseHTML("<i>" + respJson['intent'] + "</i>"))
+                        .css("background-color", "#4ca64c");
+                } else {
+                    $("#response").show()
+                        .append($.parseHTML("Aun no conozco a que te refieres con: <i>" + respJson['input'] + "</i>"))
+                        .css("background-color", "#cc0000");
+                }
+            }, function (reason) {
+                console.log("error in processing your request", reason);
+            });
+
         }
 
         function csrfSafeMethod(method) {
@@ -64,16 +55,18 @@
             return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
         }
 
-        function makeAjaxCall(url, methodType, callback) {
+        function makeAjaxCall(url, methodType, data,callback) {
             return $.ajax({
                 url: url,
                 method: methodType,
                 dataType: "json",
+                contentType: 'application/json',
                 beforeSend: function (xhr, settings) {
                     if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
                         xhr.setRequestHeader("X-CSRFToken", csrftoken);
                     }
-                }
+                },
+                data: data,
             })
         }
     </script>
