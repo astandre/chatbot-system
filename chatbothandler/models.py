@@ -34,7 +34,7 @@ class SocialNetworks(models.Model):
         (TWITTER, 'Twitter'),
         (FACEBOOK, 'Facebook'),
         (TELEGRAM, 'Telegram'),
-        (WEB, 'W')
+        (WEB, 'Web')
     )
     social_network = models.CharField(
         max_length=2,
@@ -60,7 +60,7 @@ class Inputs(models.Model):
     raw_input = models.CharField(max_length=3000, null=False, blank=True)
     social_network = models.ForeignKey(SocialNetworks, on_delete=models.CASCADE, null=True, blank=True)
     solved = models.BooleanField(default=False)
-    intent = models.OneToOneField(Intents, on_delete=models.CASCADE, null=True, blank=True)
+    intent = models.ForeignKey(Intents, on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
         default_related_name = 'inputs'

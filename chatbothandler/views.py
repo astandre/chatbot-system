@@ -33,10 +33,11 @@ def new_input(request):
         serializer = InputSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            input_name = Inputs.objects.values('id_input').last()
-            # TODO resolve intent
-            # Entry.objects.filter(pub_date__year=2010).update(comments_on=False)
-            # intent = get_intent(serializer.validated_data["text"])
-            print(input_name)
-            return Response({"status": 201}, status=status.HTTP_201_CREATED)
+            last_input_id = Inputs.objects.values('id_input').last()
+            intent = get_intent(serializer.validated_data["text"])
+            if intent["intent"] is not None:
+                intent_answer = Intents.objects.get(name=intent["intent"])
+                Inputs.objects.filter(id_input=last_input_id["id_input"]).update(
+                    intent=intent_answer, solved=True)
+            return Response(intent, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

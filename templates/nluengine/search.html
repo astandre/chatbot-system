@@ -2,6 +2,7 @@
 {% load static %}
 {% block header %}
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+    <script src="{% static 'nluengine/js/moment.min.js' %}"></script>
     <link rel="stylesheet" type="text/css" href="{% static 'nluengine/css/search_style.css' %}">
 {% endblock %}
 {% block title %}Search{% endblock %}
@@ -27,12 +28,12 @@
     <script type="text/javascript">
         $("#response").hide();
         var csrftoken = Cookies.get('csrftoken');
-
         function search() {
-            var query = '{"query":"'+ document.getElementById("searchbar").value+'"}';
+            var date =  moment().format('YYYY-MM-DDTHH:mm:ss');
+            var query = '{ "created_at":"'+ date+'","text":"'+ document.getElementById("searchbar").value+'",   "social_network": {     "id_account": 4,     "social_network": "W"   } }';
             $("#response").empty();
             $("#searchbar").val('');
-            var URL = "/engine/resolve/";
+            var URL = "/handler/user/input/";
             makeAjaxCall(URL, "POST", query).then(function (respJson) {
                 console.log(respJson);
                 if (respJson['intent'] != null) {

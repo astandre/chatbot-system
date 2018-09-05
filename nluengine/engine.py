@@ -150,9 +150,9 @@ def resolve_query(text):
     intent = engine.parse(text)
     response = {}
     if intent['intent'] is not None:
-        response["intent"] = intent['intent']
+        response["intent"] = intent['intent']['intentName']
         response["slots"] = intent['slots']
-        answer = Intents.objects.values('answer').filter(name__iexact=response['intent']['intentName'])
+        answer = Intents.objects.values('answer').filter(name=response['intent']['intentName'])
         response['answer'] = answer[0]['answer']
     else:
         response["intent"] = None
