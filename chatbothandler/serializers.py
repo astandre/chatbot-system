@@ -50,9 +50,13 @@ class InputSerializer(serializers.ModelSerializer):
         user_data = validated_data['social_network']
         sn_user = SocialNetworks.objects.get(id_account=user_data['id_account'],
                                              social_network=user_data['social_network'])
-        input_name = Inputs(text=validated_data['text'], location=validated_data['location'],
-                            created_at=validated_data['created_at'],
-                            raw_input=validated_data['raw_input'], social_network=sn_user)
+        if "location" in validated_data and "raw_input" in validated_data:
+            input_name = Inputs(text=validated_data['text'], location=validated_data['location'],
+                                created_at=validated_data['created_at'],
+                                raw_input=validated_data['raw_input'], social_network=sn_user)
+        else:
+            input_name = Inputs(text=validated_data['text'], created_at=validated_data['created_at'],
+                                social_network=sn_user)
         input_name.save()
 
         return input_name
