@@ -1,140 +1,69 @@
-from django.db import models
-from datetime import datetime
+from neomodel import *
+from neomodel import install_all_labels, remove_all_labels
 
 
-# Create your models here.
+# remove_all_labels()
+# install_all_labels()
 
 
-class Docentes(models.Model):
-    TERCER = 'TN'
-    CUARTO = 'CN'
-    TECNICO = 'T'
-    N_ACADEMICO = (
-        (TECNICO, 'Nivel Técnico'),
-        (TERCER, 'Tercer Nivel'),
-        (CUARTO, 'Cuarto Nivel')
-    )
+# clear_neo4j_database(db)
+# TODO set label and help_text
 
-    id_docente = models.AutoField(primary_key=True)
-    nombre = models.CharField(max_length=300, null=False)
-    nivel_academico = models.CharField(
-        null=False,
-        max_length=2,
-        choices=N_ACADEMICO,
-        default=TERCER
-    )
-    email = models.EmailField(blank=True)
-    twitter = models.CharField(blank=True, max_length=120)
-    resumen = models.CharField(max_length=400, null=False)
-
-    class Meta:
-        default_related_name = 'docentes'
-        verbose_name = "Docente"
-        verbose_name_plural = "Docentes"
-        db_table = 'docentes'
-
-    def __str__(self):
-        return self.nombre
+class Curso(StructuredNode):
+    uid = UniqueIdProperty()
+    nombre = StringProperty(required=True, unique_index=True)
+    cod = StringProperty(unique=True,required=True)
+    sinonimos = ArrayProperty(StringProperty(), required=False)
+    descripcion = StringProperty(required=False)
+    pre_requisitos = StringProperty(required=False)
+    edicion = StringProperty(required=False)
+    oferta = StringProperty(required=False)
+    tematica = StringProperty(required=False)
+    fecha_inscripcion = DateProperty(default_now=True)
+    fecha_inicio = DateProperty(default_now=True)
+    esfuerzo_estimado = StringProperty(default=0)
+    duracion = StringProperty(required=False)
+    link = StringProperty(default="http://opencampus.utpl.edu.ec/")
+    INSTITUCIONES = {
+        "U": "UTPL",
+        "O": "Otro",
+    }
+    institucion = StringProperty(choices=INSTITUCIONES, default="U")
+    archivado = BooleanProperty(default=False)
+    docente = RelationshipTo('Docente', 'HAS_A_DOCENTE', cardinality=OneOrMore)
+    competencia = RelationshipTo('Competencia', 'HAS_A_COMPETENCIA', cardinality=OneOrMore)
+    reto = RelationshipTo('Reto', 'HAS_A_RETO', cardinality=OneOrMore)
+    contenido = RelationshipTo('Contenido', 'HAS_A_CONTENIDO', cardinality=OneOrMore)
 
 
-class Cursos(models.Model):
-    id_curso = models.AutoField(primary_key=True)
-    cod = models.CharField(max_length=10, null=False, blank=False)
-    nombre = models.CharField(max_length=60, null=False)
-    descripcion = models.CharField(max_length=300, null=False, blank=True)
-    pre_requisitos = models.CharField(max_length=300, null=False, blank=True)
-    edicion = models.CharField(max_length=3, blank=False, default=1)
-    oferta = models.CharField(max_length=20, blank=False)
-    tematica = models.CharField(max_length=60, blank=False)
-    fecha_inscripcion = models.DateField(blank=False, default=datetime.now)
-    fecha_inicio = models.DateField(blank=False, default=datetime.now)
-    esfuerzo_estimado = models.CharField(max_length=2, blank=False, default=1)
-    duracion = models.CharField(max_length=2, blank=False, default=1)
-    link = models.CharField(max_length=100, blank=False, default="http://opencampus.utpl.edu.ec/")
-    UTPL = 'UTPL'
-    OTRO = 'Otro'
-    INSTITUCIONES = (
-        (UTPL, 'UTPL'),
-        (OTRO, 'Otro'),
-    )
-    institucion = models.CharField(
-        null=False,
-        max_length=5,
-        choices=INSTITUCIONES,
-        default=UTPL
-    )
-    archivado = models.BooleanField(default=False)
-    docentes = models.ManyToManyField(Docentes, blank=True)
-
-    class Meta:
-        default_related_name = 'cursos'
-        verbose_name = "Curso"
-        verbose_name_plural = "Cursos"
-        db_table = 'cursos'
-
-    def __str__(self):
-        return self.nombre
+class Docente(StructuredNode):
+    uid = UniqueIdProperty()
+    nombre = StringProperty(unique_index=True, required=True)
+    N_ACADEMICO = {
+        "TN": "Nivel Técnico",
+        "CN": "Tercer Nivel",
+        "T": "Cuarto Nivel",
+    }
+    nivel_academico = StringProperty(default="T", choices=N_ACADEMICO)
+    email = EmailProperty(required=False)
+    resumen = StringProperty(required=False)
+    curso = RelationshipTo('Curso', 'TEACHES', cardinality=OneOrMore)
 
 
-class Competencias(models.Model):
-    id_competencia = models.AutoField(primary_key=True)
-    competencia = models.CharField(max_length=400, null=False)
-    curso = models.ForeignKey(Cursos, on_delete=models.CASCADE, null=True, blank=True)
-
-    class Meta:
-        default_related_name = 'competencias'
-        verbose_name = "Competencia"
-        verbose_name_plural = "Competencias"
-        db_table = 'competencias'
-
-    def __str__(self):
-        return self.competencia
+class Competencia(StructuredNode):
+    competencia = StringProperty(unique=True, required=True)
+    curso = RelationshipTo(Curso, 'IS_FROM', cardinality=OneOrMore)
 
 
-class Retos(models.Model):
-    id_reto = models.AutoField(primary_key=True)
-    titulo_reto = models.CharField(max_length=30)
-    fecha_inicio = models.DateTimeField(null=False, default=datetime.now)
-    fecha_fin = models.DateTimeField(null=False, default=datetime.now)
-    descripcion = models.CharField(max_length=400, null=False, blank=False)
-    curso = models.ForeignKey(Cursos, on_delete=models.CASCADE, null=True, blank=True)
-
-    class Meta:
-        default_related_name = 'retos'
-        verbose_name = "Reto"
-        verbose_name_plural = "Retos"
-        db_table = 'retos'
-
-    def __str__(self):
-        return self.titulo_reto
+class Reto(StructuredNode):
+    titulo_reto = StringProperty(unique=True, required=True)
+    fecha_inicio = DateTimeProperty(default_now=True)
+    fecha_fin = DateTimeProperty(default_now=True)
+    descripcion = StringProperty(required=False)
+    curso = RelationshipTo(Curso, 'IS_FROM', cardinality=OneOrMore)
 
 
-class Contenidos(models.Model):
-    id_contenido = models.AutoField(primary_key=True)
-    orden = models.CharField(max_length=2, blank=False)
-    contenido = models.CharField(max_length=400, null=False)
-    curso = models.ForeignKey(Cursos, on_delete=models.CASCADE, null=True, blank=True)
-
-    class Meta:
-        default_related_name = 'contenidos'
-        verbose_name = "Contenido"
-        verbose_name_plural = "Contenidos"
-        db_table = 'contenidos'
-
-    def __str__(self):
-        return self.contenido
-
-
-class SinonimosCurso(models.Model):
-    id_sinonimo = models.AutoField(primary_key=True)
-    sinonimo = models.CharField(max_length=400, null=False)
-    curso = models.ForeignKey(Cursos, on_delete=models.CASCADE, null=True, blank=True)
-
-    class Meta:
-        default_related_name = 'sinonimoscurso'
-        verbose_name = "SinonimoCurso"
-        verbose_name_plural = "SinonimoCursos"
-        db_table = 'sinonimos_curso'
-
-    def __str__(self):
-        return self.sinonimo
+class Contenido(StructuredNode):
+    orden = StringProperty(required=True)
+    contenido = StringProperty(unique=True, required=True)
+    curso = RelationshipTo(Curso, 'IS_FROM', cardinality=OneOrMore)
