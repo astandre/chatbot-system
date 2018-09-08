@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block header %}
+{% endblock %}
+{% block title %}Graph{% endblock %}
+{% block main %}
+
+
+    {% if person %}
+        <h1>Exito</h1>
+        {{ person }}
+    {% else %}
+        <h1>NEL</h1>
+    {% endif %}
+{% endblock %}
