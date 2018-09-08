@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import *
-from .services import get_intent
+from .services import get_intent, generate_answer
 
 
 # Create your views here.
@@ -36,6 +36,7 @@ def new_input(request):
             last_input_id = Inputs.objects.values('id_input').last()
             intent = get_intent(serializer.validated_data["text"])
             if intent["intent"] is not None:
+                intent = generate_answer(intent)
                 intent_answer = Intents.objects.get(name=intent["intent"])
                 Inputs.objects.filter(id_input=last_input_id["id_input"]).update(
                     intent=intent_answer, solved=True)
