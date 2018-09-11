@@ -1,4 +1,5 @@
 import requests
+from .utils import clean_curso
 
 BASE_URL = "http://127.0.0.1:8000"
 
@@ -19,15 +20,54 @@ def get_cursos():
     return response["cursos"]
 
 
+def get_curso_fecha_inicio(json):
+    url = BASE_URL + '/cursos/fecha-inicio/'
+    r = requests.get(url, json=json)
+    if r.status_code == 200:
+        response = r.json()
+    else:
+        response = None
+    return response
+
+
 def generate_answer(intent):
     # intent["intent"]
     # intent["answer"]
     # intent["slots"]
-    split_index = intent["answer"].find("|")
-    print(split_index)
     if intent["intent"] == "listarCursos":
-        # retrieve cursos
+        split_index = intent["answer"].find("|")
+        # getting cursos info
         cursos = get_cursos()
         if split_index != -1:
             intent["answer"] = intent["answer"][0:split_index - 1] + cursos
+    elif intent["intent"] == "fechaInicioCurso":
+        answer_parts = intent["answer"].split("|")
+        if len(intent["slots"]) > 0:
+            if intent["slots"][0]["rawValue"].find("-") != -1:
+                print(intent["slots"][0]["rawValue"])
+                curso_resp = get_curso_fecha_inicio({"curso": intent["slots"][0]["rawValue"]})
+                # getting curso fecha inicio
+                if curso_resp is not None:
+                    intent["answer"] = answer_parts[0] + curso_resp["nombre_curso"] + answer_parts[1] + curso_resp[
+                        "fecha_inicio"] + answer_parts[2]
+                # else:
+                #     # TODO handle synonyms
+                #     # try with name
+                #     curso_name = clean_curso(intent["slots"][0]["rawValue"])
+                #     curso_resp = get_curso_fecha_inicio({"synonym": curso_name})
+                #     # getting curso fecha inicio
+                #     if curso_resp is not None:
+                #         intent["answer"] = answer_parts[0] + curso_resp["nombre_curso"] + answer_parts[1] + curso_resp[
+                #             "fecha_inicio"] + answer_parts[2]
+            else:
+                curso_resp = get_curso_fecha_inicio({"codigo": intent["slots"][0]["rawValue"]})
+                # getting curso fecha inicio
+                if curso_resp is not None:
+                    intent["answer"] = answer_parts[0] + curso_resp["nombre_curso"] + answer_parts[1] + curso_resp[
+                        "fecha_inicio"] + answer_parts[2]
+                else:
+                    intent["answer"] = "No se ha podido encontrar el curso con el codigo" + intent["slots"][0][
+                        "rawValue"]
+        else:
+            print("Slot not found")
     return intent

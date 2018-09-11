@@ -3,6 +3,8 @@ from django.http import HttpResponse, JsonResponse
 from .models import *
 from datetime import date, datetime
 from rest_framework.decorators import api_view
+from .serializers import CursoSerializer
+from rest_framework import status
 
 
 # Create your views here.
@@ -18,18 +20,57 @@ def get_cursos(request):
         cursos_list = ""
         for i in range(0, len(cursos)):
             # print(cursos[i].__dict__["nombre"])
-            if i+1 != len(cursos):
+            if i + 1 != len(cursos):
                 cursos_list += cursos[i].__dict__["nombre"] + ", "
             else:
                 cursos_list += cursos[i].__dict__["nombre"]
         return JsonResponse({"cursos": cursos_list})
 
 
+@api_view(['GET'])
+def get_curso_fecha_inicio(request):
+    """
+    Retrieve al cursos from graph
+    :return: cursos in a string
+    """
+    if request.method == 'GET':
+        serializer = CursoSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            if "curso" in serializer.validated_data:
+                try:
+                    curso = Curso.nodes.get(nombre__icontains=serializer.validated_data["curso"])
+                    resp = {"nombre_curso": curso.__dict__["nombre"], "fecha_inicio": curso.__dict__["fecha_inicio"]}
+                    return JsonResponse(resp, status=status.HTTP_200_OK)
+                except Curso.DoesNotExist:
+                    print("Cant find (CURSO) ", serializer.validated_data["curso"])
+                    return JsonResponse({"error": "(CURSO) " + serializer.validated_data["curso"] + " not found "},
+                                        status=status.HTTP_404_NOT_FOUND)
+            if "codigo" in serializer.validated_data:
+                try:
+                    curso = Curso.nodes.get(cod__icontains=serializer.validated_data["codigo"])
+                    resp = {"nombre_curso": curso.__dict__["nombre"], "fecha_inicio": curso.__dict__["fecha_inicio"]}
+                    return JsonResponse(resp, status=status.HTTP_200_OK)
+                except Curso.DoesNotExist:
+                    print("Cant find (CURSO) ", serializer.validated_data["curso"])
+                    return JsonResponse({"error": "(CURSO) " + serializer.validated_data["codigo"] + " not found "},
+                                        status=status.HTTP_404_NOT_FOUND)
+            # if "synonym" in serializer.validated_data:
+            #     try:
+            #         curso = Curso.nodes.get(sinonimos__icontains=serializer.validated_data["curso"])
+            #         resp = {"nombre_curso": curso.__dict__["nombre"], "fecha_inicio": curso.__dict__["fecha_inicio"]}
+            #         return JsonResponse(resp, status=status.HTTP_200_OK)
+            #     except Curso.DoesNotExist:
+            #         print("Cant find (CURSO) ", serializer.validated_data["curso"])
+            #         return JsonResponse({"error": "(CURSO) " + serializer.validated_data["curso"] + " not found "},
+            #                             status=status.HTTP_404_NOT_FOUND)
+        return JsonResponse(serializer.errors, status=status.HTTP_404_NOT_FOUND)
+
+
 def graph(request):
     """
     Graph test
     """
-
 
     # for i in range(0,len(cursos)):
     #     print(cursos[i]["nombre"])
@@ -38,7 +79,7 @@ def graph(request):
     # date2 = datetime.strptime("2018-10-07", "%Y-%m-%d").date()
     # print(date2)
     # curso = Curso(cod='CD', nombre="Ciencia de datos", sinonimos=["Ciencia de datos", "Ciencia datos"],
-    #               descripcion="Este curso te enseñara todo lo referente a los datos",
+    #               descripcion="Este curso te enseñara \rtodo lo referente a los datos",
     #               pre_requisitos="Ninguno",
     #               edicion="Segunda",
     #               oferta="Septimebre 2018",
@@ -115,6 +156,6 @@ def graph(request):
 
     template = loader.get_template('cursoshandler/graph.html')
     context = {
-        "person": cursos
+        "person": "hola"
     }
     return HttpResponse(template.render(context, request))

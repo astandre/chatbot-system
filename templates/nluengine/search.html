@@ -38,7 +38,7 @@
                 console.log(respJson);
                 if (respJson['intent'] != null) {
                     $("#response").show()
-                        .append($.parseHTML("<i>" + respJson['intent'] + "</i>"))
+                        .append($.parseHTML("<i>" + respJson['answer'] + "</i>"))
                         .css("background-color", "#4ca64c");
                 } else {
                     $("#response").show()
