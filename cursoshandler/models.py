@@ -12,8 +12,7 @@ from neomodel import install_all_labels, remove_all_labels
 class Curso(StructuredNode):
     uid = UniqueIdProperty()
     nombre = StringProperty(required=True, unique_index=True)
-    cod = StringProperty(unique=True,required=True)
-    sinonimos = ArrayProperty(StringProperty(), required=False)
+    cod = StringProperty(unique=True, required=True)
     descripcion = StringProperty(required=False)
     pre_requisitos = StringProperty(required=False)
     edicion = StringProperty(required=False)
@@ -34,6 +33,7 @@ class Curso(StructuredNode):
     competencia = RelationshipTo('Competencia', 'HAS_A_COMPETENCIA', cardinality=OneOrMore)
     reto = RelationshipTo('Reto', 'HAS_A_RETO', cardinality=OneOrMore)
     contenido = RelationshipTo('Contenido', 'HAS_A_CONTENIDO', cardinality=OneOrMore)
+    sinonimo = RelationshipTo('Sinonimo', 'HAS_A_SINONIMO', cardinality=OneOrMore)
 
 
 class Docente(StructuredNode):
@@ -66,4 +66,9 @@ class Reto(StructuredNode):
 class Contenido(StructuredNode):
     orden = StringProperty(required=True)
     contenido = StringProperty(unique=True, required=True)
+    curso = RelationshipTo(Curso, 'IS_FROM', cardinality=OneOrMore)
+
+
+class Sinonimo(StructuredNode):
+    sinonimo = StringProperty(required=True, unique_index=True)
     curso = RelationshipTo(Curso, 'IS_FROM', cardinality=OneOrMore)
