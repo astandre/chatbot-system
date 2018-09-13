@@ -152,7 +152,7 @@ def resolve_query(text):
     if intent['intent'] is not None:
         response["intent"] = intent['intent']['intentName']
         response["slots"] = intent['slots']
-        answer = Intents.objects.values('answer').filter(name=response['intent']['intentName'])
+        answer = Intents.objects.values('answer').filter(name=response['intent'])
         response['answer'] = answer[0]['answer']
     else:
         response["intent"] = None

@@ -52,18 +52,20 @@ def get_curso_fecha_inicio(request):
                     resp = {"nombre_curso": curso.__dict__["nombre"], "fecha_inicio": curso.__dict__["fecha_inicio"]}
                     return JsonResponse(resp, status=status.HTTP_200_OK)
                 except Curso.DoesNotExist:
-                    print("Cant find (CURSO) ", serializer.validated_data["curso"])
+                    print("Cant find (CURSO) ", serializer.validated_data["codigo"])
                     return JsonResponse({"error": "(CURSO) " + serializer.validated_data["codigo"] + " not found "},
                                         status=status.HTTP_404_NOT_FOUND)
-            # if "synonym" in serializer.validated_data:
-            #     try:
-            #         curso = Curso.nodes.get(sinonimos__icontains=serializer.validated_data["curso"])
-            #         resp = {"nombre_curso": curso.__dict__["nombre"], "fecha_inicio": curso.__dict__["fecha_inicio"]}
-            #         return JsonResponse(resp, status=status.HTTP_200_OK)
-            #     except Curso.DoesNotExist:
-            #         print("Cant find (CURSO) ", serializer.validated_data["curso"])
-            #         return JsonResponse({"error": "(CURSO) " + serializer.validated_data["curso"] + " not found "},
-            #                             status=status.HTTP_404_NOT_FOUND)
+            if "synonym" in serializer.validated_data:
+                try:
+                    sinonimo = Sinonimo.nodes.get(sinonimo__icontains=serializer.validated_data["synonym"])
+                    print(sinonimo.__dict__["curso"]["nombre"])
+                    resp = {"nombre_curso": "WIP"}
+                    # resp = {"nombre_curso": curso.__dict__["nombre"], "fecha_inicio": curso.__dict__["fecha_inicio"]}
+                    return JsonResponse(resp, status=status.HTTP_200_OK)
+                except Curso.DoesNotExist:
+                    print("Cant find (CURSO) ", serializer.validated_data["synonym"])
+                    return JsonResponse({"error": "(CURSO) " + serializer.validated_data["synonym"] + " not found "},
+                                        status=status.HTTP_404_NOT_FOUND)
         return JsonResponse(serializer.errors, status=status.HTTP_404_NOT_FOUND)
 
 
@@ -93,6 +95,11 @@ def graph(request):
 
     # curso = Curso.nodes.get(cod="EMP")
     # print(curso)
+    # sinonimo1 = Sinonimo.nodes.get(sinonimo="Emprendimiento")
+    # sinonimo2 = Sinonimo.nodes.get(sinonimo="Gestion")
+    # sinonimo1.curso.connect(curso)
+    # sinonimo2.curso.connect(curso)
+
 
     # docente1 = Docente(nombre="Andre Herrera", nivel_academico="CN").save()
 
