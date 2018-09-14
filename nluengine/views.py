@@ -39,11 +39,7 @@ def nlu_engine(request):
             serializer.save()
             query = serializer.validated_data["query"]
             intent = resolve_query(query)
-            if intent["intent"] is not None:
-                return Response({"intent": intent["intent"], "slots": intent["slots"],
-                             "answer": intent["answer"]}, status=status.HTTP_200_OK)
-            else:
-                return Response(intent, status=status.HTTP_200_OK)
+            return Response(intent, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

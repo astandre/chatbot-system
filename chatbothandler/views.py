@@ -34,7 +34,15 @@ def new_input(request):
         if serializer.is_valid():
             serializer.save()
             last_input_id = Inputs.objects.values('id_input').last()
-            intent = get_intent(serializer.validated_data["text"])
+            # TODO get type of entity
+            if "expected_intent" in serializer.validated_data:
+                correct_intent = Intents.objects.values("name", "answer").get(
+                    id_intent=serializer.validated_data["expected_intent"])
+                intent = {"intent": correct_intent["name"],
+                          "slots": [{"entity": "custom", "value": serializer.validated_data["text"]
+                                     }], "answer": correct_intent["answer"]}
+            else:
+                intent = get_intent(serializer.validated_data["text"])
             if intent["intent"] is not None:
                 intent = generate_answer(intent)
                 intent_answer = Intents.objects.get(name=intent["intent"])

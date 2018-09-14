@@ -69,6 +69,36 @@ def get_curso_fecha_inicio(request):
         return JsonResponse(serializer.errors, status=status.HTTP_404_NOT_FOUND)
 
 
+@api_view(['GET'])
+def get_curso_inscripcion(request):
+    """
+    Retrieve al cursos from graph
+    :return: cursos in a string
+    """
+    if request.method == 'GET':
+        serializer = CursoSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            if "curso" in serializer.validated_data:
+                try:
+                    curso = Curso.nodes.get(nombre__icontains=serializer.validated_data["curso"])
+                    resp = {"nombre_curso": curso.__dict__["nombre"], "link": curso.__dict__["link"]}
+                    return JsonResponse(resp, status=status.HTTP_200_OK)
+                except Curso.DoesNotExist:
+                    print("Cant find (CURSO) ", serializer.validated_data["curso"])
+                    return JsonResponse({"error": "(CURSO) " + serializer.validated_data["curso"] + " not found "},
+                                        status=status.HTTP_404_NOT_FOUND)
+            if "codigo" in serializer.validated_data:
+                try:
+                    curso = Curso.nodes.get(cod__icontains=serializer.validated_data["codigo"])
+                    resp = {"nombre_curso": curso.__dict__["nombre"], "link": curso.__dict__["link"]}
+                    return JsonResponse(resp, status=status.HTTP_200_OK)
+                except Curso.DoesNotExist:
+                    print("Cant find (CURSO) ", serializer.validated_data["codigo"])
+                    return JsonResponse({"error": "(CURSO) " + serializer.validated_data["codigo"] + " not found "},
+                                        status=status.HTTP_404_NOT_FOUND)
+        return JsonResponse(serializer.errors, status=status.HTTP_404_NOT_FOUND)
+
 def graph(request):
     """
     Graph test

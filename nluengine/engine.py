@@ -151,9 +151,14 @@ def resolve_query(text):
     response = {}
     if intent['intent'] is not None:
         response["intent"] = intent['intent']['intentName']
-        response["slots"] = intent['slots']
-        answer = Intents.objects.values('answer').filter(name=response['intent'])
-        response['answer'] = answer[0]['answer']
+        slots = []
+        for slot in intent["slots"]:
+            slots.append({"entity": slot["entity"], "value": slot["value"]["value"]})
+        response["slots"] = slots
+        check_intent = Intents.objects.values('expected_intent', 'answer').get(name=response['intent'])
+        response['answer'] = check_intent["answer"]
+        if check_intent["expected_intent"] is not None:
+            response['expected_intent'] = check_intent["expected_intent"]
     else:
         response["intent"] = None
         response["input"] = intent['input']

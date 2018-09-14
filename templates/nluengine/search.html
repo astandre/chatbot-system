@@ -27,15 +27,26 @@
     </div>
     <script type="text/javascript">
         $("#response").hide();
+        var clear = true;
         var csrftoken = Cookies.get('csrftoken');
+        var expected_intent = "";
         function search() {
-            var date =  moment().format('YYYY-MM-DDTHH:mm:ss');
-            var query = '{ "created_at":"'+ date+'","text":"'+ document.getElementById("searchbar").value+'",   "social_network": {     "id_account": 4,     "social_network": "W"   } }';
+            var date = moment().format('YYYY-MM-DDTHH:mm:ss');
+            var query = "";
+            if (clear) {
+                query = '{ "created_at":"' + date + '","text":"' + document.getElementById("searchbar").value + '",   "social_network": {     "id_account": 4,     "social_network": "W"   }}';
+            } else {
+                query = '{ "created_at":"' + date + '","text":"' + document.getElementById("searchbar").value + '",   "social_network": {     "id_account": 4,     "social_network": "W"   } ,"expected_intent":'+expected_intent+'}';
+            }
             $("#response").empty();
             $("#searchbar").val('');
             var URL = "/handler/user/input/";
             makeAjaxCall(URL, "POST", query).then(function (respJson) {
                 console.log(respJson);
+                if ("expected_intent" in respJson){
+                    clear = false;
+                    expected_intent = respJson['expected_intent']
+                }
                 if (respJson['intent'] != null) {
                     $("#response").show()
                         .append($.parseHTML("<i>" + respJson['answer'] + "</i>"))
@@ -56,7 +67,8 @@
             return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
         }
 
-        function makeAjaxCall(url, methodType, data,callback) {
+        function makeAjaxCall(url, methodType, data, callback) {
+            clear = true;
             return $.ajax({
                 url: url,
                 method: methodType,
@@ -68,7 +80,8 @@
                     }
                 },
                 data: data,
-            })
+            });
+
         }
     </script>
 {% endblock %}
