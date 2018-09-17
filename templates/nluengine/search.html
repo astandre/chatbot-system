@@ -32,15 +32,19 @@
         var expected_intent = "";
         function search() {
             var date = moment().format('YYYY-MM-DDTHH:mm:ss');
-            var query = "";
-            if (clear) {
-                query = '{ "created_at":"' + date + '","text":"' + document.getElementById("searchbar").value + '",   "social_network": {     "id_account": 4,     "social_network": "W"   }}';
-            } else {
-                query = '{ "created_at":"' + date + '","text":"' + document.getElementById("searchbar").value + '",   "social_network": {     "id_account": 4,     "social_network": "W"   } ,"expected_intent":'+expected_intent+'}';
-            }
+            {#var query = "";#}
+            // Un comment this to test against engine directly
+            var query = '{"query":"' + document.getElementById("searchbar").value + '"}';
+            //if (clear) {
+            //    query = '{ "created_at":"' + date + '","text":"' + document.getElementById("searchbar").value + '",   "social_network": {     "id_account": 4,     "social_network": "W"   }}';
+            //} else {
+            //    query = '{ "created_at":"' + date + '","text":"' + document.getElementById("searchbar").value + '",   "social_network": {     "id_account": 4,     "social_network": "W"   } ,"expected_intent":'+expected_intent+'}';
+            //}
             $("#response").empty();
             $("#searchbar").val('');
-            var URL = "/handler/user/input/";
+            // Un comment this to test against engine directly
+            var URL = "/engine/resolve/";
+             // var URL = "/handler/user/input/";
             makeAjaxCall(URL, "POST", query).then(function (respJson) {
                 console.log(respJson);
                 if ("expected_intent" in respJson){

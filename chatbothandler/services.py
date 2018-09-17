@@ -43,6 +43,7 @@ def generate_answer(intent):
     # intent["intent"]
     # intent["answer"]
     # intent["slots"]
+    # TODO invertir el ordem, primero obtener la info del curso y luego usarla
     if intent["intent"] == "listarCursos":
         split_index = intent["answer"].find("|")
         # getting cursos info

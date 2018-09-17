@@ -167,5 +167,5 @@ def resolve_query(text):
 
 load_resources("snips_nlu_es")
 engine = SnipsNLUEngine(config=CONFIG_ES)
-
+# Comment this to not train engine when system is starting.
 train_engine()
