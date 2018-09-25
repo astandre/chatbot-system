@@ -3,15 +3,13 @@ from django.db import models
 
 # Create your models here.
 
+# TODO add cancel options
 # TODO add help text
 class Intents(models.Model):
     id_intent = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30, null=False, unique=True)
     description = models.CharField(max_length=200, null=False, blank=True)
     answer = models.CharField(max_length=400, blank=True, null=False)
-    expected_intent = models.ForeignKey("Intents", on_delete=models.CASCADE, null=True,blank=True)
-
-    # next = models.ForeignKey(BotQuestions, on_delete=models.CASCADE)
 
     class Meta:
         default_related_name = 'intents'
@@ -23,7 +21,6 @@ class Intents(models.Model):
         return self.name
 
 
-# TODO fix typping
 class Questions(models.Model):
     id_questions = models.AutoField(primary_key=True)
     question = models.CharField(max_length=200, null=False, unique=True)
@@ -114,17 +111,18 @@ class Slots(models.Model):
     def __str__(self):
         return self.slot_name
 
-# class BotQuestions(models.Model):
-#     id_bot_questions = models.AutoField(primary_key=True)
-#     bot_question = models.CharField(max_length=200, null=False)
-#     expected_question = models.ForeignKey(Intents, on_delete=models.CASCADE)
-#     expected_entity = models.ForeignKey(Entities, on_delete=models.CASCADE)
-#
-#     class Meta:
-#         default_related_name = 'bot_questions'
-#         verbose_name = "BotQuestion"
-#         verbose_name_plural = "BotQuestions"
-#         db_table = 'bot_questions'
-#
-#     def __str__(self):
-#         return self.bot_question[0:20]
+
+class IntentCheck(models.Model):
+    id_intent_check = models.AutoField(primary_key=True)
+    intent = models.ForeignKey(Intents, on_delete=models.CASCADE)
+    clear_question = models.CharField(max_length=400, blank=True, null=False)
+    entity = models.ForeignKey(Entities, on_delete=models.CASCADE)
+
+    class Meta:
+        default_related_name = 'intentcheck'
+        verbose_name = "IntentCheck"
+        verbose_name_plural = "IntentsCheck"
+        db_table = 'intentcheck'
+
+    def __str__(self):
+        return self.clear_question

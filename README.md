@@ -25,3 +25,11 @@ Para visualizar la informacion que se esta cargando en el engine, lo podemos ver
 
 Si queremos usar el engine para que resuelva los intents y entities, debemos hacerlo a traves del endpoint
 engine/resolve/, al cual debemos enviar un json de entrada con la key "query"
+
+## Requerimentos
+Los requerimientos se encuentran en el archivo requirements.txt,
+adcionalmente debemos descargar el complemento de snips para español con el comando
+
+python -m snips_nlu download en
+
+
