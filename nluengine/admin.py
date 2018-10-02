@@ -24,7 +24,7 @@ class QuestionsAdmin(admin.ModelAdmin):
 
 class IntentsAdmin(admin.ModelAdmin):
     inlines = [QuestionsInline]
-    list_display = ('name', 'description', 'answer')
+    list_display = ('name', 'description' )
     search_fields = ['name']
 
 
