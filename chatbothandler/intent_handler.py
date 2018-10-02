@@ -94,4 +94,32 @@ def intent_handler(intent):
                         "value"]
         else:
             print("Curso name not found")
+    elif intent["intent"] == "prerrequitosCurso":
+        curso_name = None
+        if "slots" in intent and len(intent["slots"]) > 0:
+            curso_name = clean_curso(intent["slots"][0]["value"])
+        if curso_name is None:
+            if "context" in intent and len(intent["context"]) > 0:
+                for value in intent["context"]:
+                    if value["entity"] == "curso":
+                        curso_name = clean_curso(value["value"])
+                        break
+        if curso_name is not None:
+                # getting curso prerrequisitos
+            curso_resp = get_curso_prerrequisitos({"curso": curso_name})
+            if curso_resp is not None:
+                if "anwser" not in intent:
+                    intent["answer"] = get_intent_answer(intent["intent"])
+                    #     Get intent answer
+                answer_parts = intent["answer"].split("|")
+                intent["answer"] = answer_parts[0] + curso_resp["nombre_curso"] + answer_parts[1] + curso_resp[
+                        "pre_requisitos"] + answer_parts[2]
+                if "context_vars" in intent:
+                    intent.pop("context_vars", None)
+                intent["solved"] = True
+            else:
+                intent["answer"] = "No se ha podido encontrar el curso " + intent["slots"][0][
+                        "value"]
+        else:
+            print("Curso name not found")
     return intent

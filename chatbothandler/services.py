@@ -47,3 +47,13 @@ def get_curso_inscripcion(json):
         response = None
     return response
 
+
+def get_curso_prerrequisitos(json):
+    url = BASE_URL + '/cursos/prerrequisitos/'
+    r = requests.get(url, json=json)
+    if r.status_code == 200:
+        response = r.json()
+    else:
+        response = None
+    return response
+
