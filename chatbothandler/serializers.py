@@ -41,11 +41,12 @@ class SocialNetworksSerializer(serializers.ModelSerializer):
 
 class InputSerializer(serializers.ModelSerializer):
     social_network = SocialNetworkInputSerializer()
-    expected_intent = serializers.CharField(required=False, max_length=30)
+    context = serializers.ListField(required=False)
+    intent = serializers.CharField(required=False,max_length=30)
 
     class Meta:
         model = Inputs
-        fields = ('created_at', 'text', 'location', 'raw_input', 'social_network','expected_intent')
+        fields = ('created_at', 'text', 'location', 'raw_input', 'social_network','intent','context')
 
     def create(self, validated_data):
         user_data = validated_data['social_network']

@@ -149,7 +149,7 @@ def train_engine():
 def resolve_query(text):
     intent = engine.parse(text)
     response = {}
-    print(intent)
+    print(">> (INTENT): ", intent)
     if intent['intent'] is not None:
         response["intent"] = intent['intent']['intentName']
         slots = []
@@ -160,23 +160,28 @@ def resolve_query(text):
 
         check_intent_list = list(IntentCheck.objects.values('entity__entity', 'clear_question').filter(
             intent__id_intent=answer["id_intent"]))
+        # print(check_intent_list)
         context_vars = []
-        for check_intent in check_intent_list:
-            for slot in intent["slots"]:
-                if slot["entity"] == check_intent['entity__entity']:
-                    slots.append({"entity": slot["entity"], "value": slot["value"]["value"]})
-                    intent["slots"].remove(slot)
-                    break
-            for slot in intent["slots"]:
-                if slot["entity"] != check_intent['entity__entity']:
-                    context_vars.append({"question": check_intent["clear_question"], "entity": slot["entity"]})
-                    break
-        if len(context_vars) == 0:
-            response['answer'] = answer["answer"]
+        if len(intent["slots"]) == 0 and len(check_intent_list) > 0:
+            for check_intent in check_intent_list:
+                context_vars.append({"question": check_intent["clear_question"], "entity": check_intent["entity__entity"]})
         else:
-            response["context"] = context_vars
-        if len(slots) > 0:
-            response["slots"] = slots
+            for check_intent in check_intent_list:
+                for slot in intent["slots"]:
+                    if slot["entity"] == check_intent['entity__entity']:
+                        slots.append({"entity": slot["entity"], "value": slot["value"]["value"]})
+                        intent["slots"].remove(slot)
+                        break
+                for slot in intent["slots"]:
+                    if slot["entity"] != check_intent['entity__entity']:
+                        context_vars.append({"question": check_intent["clear_question"], "entity": slot["entity"]})
+                        break
+        if len(context_vars) > 0:
+            response["context_vars"] = context_vars
+        else:
+            response['answer'] = answer["answer"]
+        response["slots"] = slots
+
     else:
         response["intent"] = None
         response["input"] = intent['input']

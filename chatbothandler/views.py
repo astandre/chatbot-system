@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import *
-from .services import get_intent, generate_answer
+from .intent_handler import *
 
 
 # Create your views here.
@@ -34,17 +34,17 @@ def new_input(request):
         if serializer.is_valid():
             serializer.save()
             last_input_id = Inputs.objects.values('id_input').last()
-            # TODO get type of entity
-            if "expected_intent" in serializer.validated_data:
-                correct_intent = Intents.objects.values("name", "answer").get(
-                    id_intent=serializer.validated_data["expected_intent"])
-                intent = {"intent": correct_intent["name"],
-                          "slots": [{"entity": "custom", "value": serializer.validated_data["text"]
-                                     }], "answer": correct_intent["answer"]}
-            else:
+            if "intent" not in serializer.validated_data:
                 intent = get_intent(serializer.validated_data["text"])
+                intent["context"] = serializer.validated_data["context"]
+            else:
+                intent = {
+                    "intent": serializer.validated_data["intent"],
+                    "context": serializer.validated_data["context"]
+                }
+            print("ENTRY DATA IH >>> ", intent)
             if intent["intent"] is not None:
-                intent = generate_answer(intent)
+                intent = intent_handler(intent)
                 intent_answer = Intents.objects.get(name=intent["intent"])
                 Inputs.objects.filter(id_input=last_input_id["id_input"]).update(
                     intent=intent_answer, solved=True)
