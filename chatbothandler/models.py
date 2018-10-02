@@ -71,3 +71,19 @@ class Inputs(models.Model):
 
     def __str__(self):
         return self.text
+
+
+class Answers(models.Model):
+    id_answer = models.AutoField(primary_key=True)
+    intent = models.ForeignKey(Intents, on_delete=models.CASCADE, blank=True)
+    answer = models.CharField(max_length=400, blank=True, null=False)
+    options = models.CharField(max_length=300, null=True, blank=True)
+
+    class Meta:
+        default_related_name = 'answers'
+        verbose_name = "Answer"
+        verbose_name_plural = "Answers"
+        db_table = 'answers'
+
+    def __str__(self):
+        return self.answer

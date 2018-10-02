@@ -156,7 +156,7 @@ def resolve_query(text):
         # for slot in intent["slots"]:
         #     slots.append({"entity": slot["entity"], "value": slot["value"]["value"]})
 
-        answer = Intents.objects.values('id_intent', 'answer').get(name=response['intent'])
+        answer = Intents.objects.values('id_intent').get(name=response['intent'])
 
         check_intent_list = list(IntentCheck.objects.values('entity__entity', 'clear_question').filter(
             intent__id_intent=answer["id_intent"]))
@@ -164,7 +164,8 @@ def resolve_query(text):
         context_vars = []
         if len(intent["slots"]) == 0 and len(check_intent_list) > 0:
             for check_intent in check_intent_list:
-                context_vars.append({"question": check_intent["clear_question"], "entity": check_intent["entity__entity"]})
+                context_vars.append(
+                    {"question": check_intent["clear_question"], "entity": check_intent["entity__entity"]})
         else:
             for check_intent in check_intent_list:
                 for slot in intent["slots"]:
@@ -178,8 +179,6 @@ def resolve_query(text):
                         break
         if len(context_vars) > 0:
             response["context_vars"] = context_vars
-        else:
-            response['answer'] = answer["answer"]
         response["slots"] = slots
 
     else:

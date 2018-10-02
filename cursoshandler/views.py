@@ -17,13 +17,9 @@ def get_cursos(request):
     """
     if request.method == 'GET':
         cursos = Curso.nodes.all()
-        cursos_list = ""
+        cursos_list = []
         for i in range(0, len(cursos)):
-            # print(cursos[i].__dict__["nombre"])
-            if i + 1 != len(cursos):
-                cursos_list += cursos[i].__dict__["nombre"] + ", "
-            else:
-                cursos_list += cursos[i].__dict__["nombre"]
+            cursos_list.append(cursos[i].__dict__["nombre"])
         return JsonResponse({"cursos": cursos_list})
 
 
