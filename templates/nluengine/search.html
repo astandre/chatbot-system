@@ -41,7 +41,17 @@
             //if (clear) {
             var text = document.getElementById("searchbar").value;
             if (state) {
-                context.push({"value": text, "entity": last_JSON["context_vars"][0]["entity"]});
+                var add = true;
+                for (var i = 0; i < context.length; i++) {
+                    if (context[i]["entity"] === last_JSON["context_vars"][0]["entity"]) {
+                        context[i]["value"] = text;
+                        add = false;
+                        break
+                    }
+                }
+                if (add){
+                    context.push({"value": text, "entity": last_JSON["context_vars"][0]["entity"]});
+                }
             }
             var query = {
                 "created_at": date,
@@ -68,13 +78,23 @@
                 makeAjaxCall(URL, "POST", JSON.stringify(query)).then(function (respJson) {
                     console.log(">>> RECEIVED");
                     console.log(respJson);
-                    if ("slots" in respJson) {
-                         context =  respJson["slots"];
-                         //for (slot in respJson["slots"]){
-                                {#context.append({slot[]""})#}
-                           //     console.log(respJson["slots"][slot])
-                            //}
-                     }
+                    for (var i = 0; i < respJson["context"].length; i++) {
+                        var add = true;
+                        for (var j = 0; j < context.length; j++) {
+                            if (respJson["context"][i]["entity"] === context[j]["enitity"]) {
+                                context[j]["value"] = respJson["context"][i]["value"];
+                                add = false;
+                                break
+                            }
+                        }
+                        if (add) {
+                            context.push({
+                                "value": respJson["context"][i]["value"],
+                                "entity": respJson["context"][i]["entity"]
+                            });
+                        }
+                    }
+
                     if ("context_vars" in respJson) {
                         state = true;
                         total_questions = respJson["context_vars"].length;
@@ -88,7 +108,7 @@
                             $("#response").show()
                                 .append($.parseHTML("<i>" + respJson['answer'] + "</i>"))
                                 .css("background-color", "#4ca64c");
-                            if(respJson["solved"]=== true){
+                            if (respJson["solved"] === true) {
                                 delete respJson["solved"];
                                 delete respJson["intent"];
 

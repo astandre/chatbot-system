@@ -7,5 +7,4 @@ urlpatterns = [
     path(r'knowledge/', views.knowledge, name='knowledge'),
     path(r'api/knowledge/', views.knowledge_api, name='knowledge_api'),
     path(r'resolve/', views.nlu_engine, name='resolve'),
-    path(r'answer/', views.get_answer, name='get_answer'),
 ]

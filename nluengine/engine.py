@@ -1,7 +1,7 @@
 from snips_nlu import SnipsNLUEngine, load_resources
 from .models import *
 from django.db.models import Count
-from .models import Intents, Questions, Entities, IntentCheck
+from .models import Intents, Questions, Entities
 from snips_nlu.default_configs import CONFIG_ES
 import json
 
@@ -152,35 +152,8 @@ def resolve_query(text):
     print(">> (INTENT): ", intent)
     if intent['intent'] is not None:
         response["intent"] = intent['intent']['intentName']
-        slots = []
-        # for slot in intent["slots"]:
-        #     slots.append({"entity": slot["entity"], "value": slot["value"]["value"]})
-
-        answer = Intents.objects.values('id_intent').get(name=response['intent'])
-
-        check_intent_list = list(IntentCheck.objects.values('entity__entity', 'clear_question').filter(
-            intent__id_intent=answer["id_intent"]))
-        # print(check_intent_list)
-        context_vars = []
-        if len(intent["slots"]) == 0 and len(check_intent_list) > 0:
-            for check_intent in check_intent_list:
-                context_vars.append(
-                    {"question": check_intent["clear_question"], "entity": check_intent["entity__entity"]})
-        else:
-            for check_intent in check_intent_list:
-                for slot in intent["slots"]:
-                    if slot["entity"] == check_intent['entity__entity']:
-                        slots.append({"entity": slot["entity"], "value": slot["value"]["value"]})
-                        intent["slots"].remove(slot)
-                        break
-                for slot in intent["slots"]:
-                    if slot["entity"] != check_intent['entity__entity']:
-                        context_vars.append({"question": check_intent["clear_question"], "entity": slot["entity"]})
-                        break
-        if len(context_vars) > 0:
-            response["context_vars"] = context_vars
-        response["slots"] = slots
-
+        # response["probability"] = intent["intent"]["probability"]
+        response["slots"] = intent["slots"]
     else:
         response["intent"] = None
         response["input"] = intent['input']

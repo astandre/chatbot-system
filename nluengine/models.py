@@ -111,17 +111,3 @@ class Slots(models.Model):
         return self.slot_name
 
 
-class IntentCheck(models.Model):
-    id_intent_check = models.AutoField(primary_key=True)
-    intent = models.ForeignKey(Intents, on_delete=models.CASCADE)
-    clear_question = models.CharField(max_length=400, blank=True, null=False)
-    entity = models.ForeignKey(Entities, on_delete=models.CASCADE)
-
-    class Meta:
-        default_related_name = 'intentcheck'
-        verbose_name = "IntentCheck"
-        verbose_name_plural = "IntentsCheck"
-        db_table = 'intentcheck'
-
-    def __str__(self):
-        return self.clear_question
