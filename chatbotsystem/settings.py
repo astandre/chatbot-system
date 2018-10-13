@@ -96,7 +96,7 @@ DATABASES = {
 }
 # NEO4J DB
 # Comment this to avoid connecting to neo4j database
-# config.DATABASE_URL = 'bolt://neo4j:pass@localhost:7687'
+config.DATABASE_URL = 'bolt://neo4j:pass@localhost:7687'
 # before loading your node definitions
 # config.AUTO_INSTALL_LABELS = True
 

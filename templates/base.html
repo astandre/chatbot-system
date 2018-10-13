@@ -11,7 +11,7 @@
     <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
     <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="{% static 'base_style.css' %}">
-    {% block header %}
+    {% block head %}
     {% endblock %}
     <title>{% block title %}{% endblock %}  </title>
 
@@ -23,6 +23,7 @@
             <li><a href="{% url 'search' %}"> Search</a></li>
             <li><a href="{% url 'knowledge' %}">Knowledge</a></li>
             <li><a href="{% url 'upload_file' %}">Train</a></li>
+            <li><a href="{% url 'chat' %}">Chat</a></li>
         </ul>
     </nav>
 </header>

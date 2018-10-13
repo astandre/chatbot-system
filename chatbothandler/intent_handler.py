@@ -36,8 +36,7 @@ def intent_handler(intent):
                     intent.pop("context_vars", None)
                 intent["solved"] = True
             else:
-                intent["answer"] = "No se ha podido encontrar el curso " + intent["slots"][0][
-                    "value"]
+                intent["answer"] = "No se ha podido encontrar el curso " + curso_name
         else:
             print("Curso name not found")
     elif intent["intent"] == "inscripcionCurso":
@@ -49,6 +48,7 @@ def intent_handler(intent):
                     break
         if curso_name is not None:
             curso_resp = get_curso_inscripcion({"curso": curso_name})
+            print(curso_resp)
             # getting curso fecha inicio
             if curso_resp is not None:
                 #     Get intent answer
@@ -59,15 +59,14 @@ def intent_handler(intent):
                     intent.pop("context_vars", None)
                 intent["solved"] = True
             else:
-                intent["answer"] = "No se ha podido encontrar el curso " + intent["slots"][0][
-                    "value"]
+                intent["answer"] = "No se ha podido encontrar el curso " + curso_name
     elif intent["intent"] == "duracionCurso":
         curso_name = None
         if len(intent["context"]) > 0:
-                for value in intent["context"]:
-                    if value["entity"] == "curso":
-                        curso_name = clean_curso(value["value"])
-                        break
+            for value in intent["context"]:
+                if value["entity"] == "curso":
+                    curso_name = clean_curso(value["value"])
+                    break
         if curso_name is not None:
             # getting curso_duracion
             # TODO get duracion
@@ -80,8 +79,7 @@ def intent_handler(intent):
                     intent.pop("context_vars", None)
                 intent["solved"] = True
             else:
-                intent["answer"] = "No se ha podido encontrar el curso " + intent["slots"][0][
-                    "value"]
+                intent["answer"] = "No se ha podido encontrar el curso " +curso_name
         else:
             print("Curso name not found")
     elif intent["intent"] == "prerrequitosCurso":
@@ -103,8 +101,7 @@ def intent_handler(intent):
                     intent.pop("context_vars", None)
                 intent["solved"] = True
             else:
-                intent["answer"] = "No se ha podido encontrar el curso " + intent["slots"][0][
-                    "value"]
+                intent["answer"] = "No se ha podido encontrar el curso " + curso_name
         else:
             print("Curso name not found")
     return intent
@@ -117,25 +114,27 @@ def resolve_missing_entities(intent):
         intent__id_intent=answer["id_intent"]))
     slots = []
     context_vars = []
-    if len(intent["slots"]) == 0 and len(check_entity_list) > 0:
-        for check_entity in check_entity_list:
-            context_vars.append(
-                {"question": check_entity["clear_question"], "entity": check_entity["entity__entity"],
-                 "options": check_entity["options"]})
+    if "slots" in intent:
+        if len(intent["slots"]) == 0 and len(check_entity_list) > 0:
+            for check_entity in check_entity_list:
+                context_vars.append(
+                    {"question": check_entity["clear_question"], "entity": check_entity["entity__entity"],
+                     "options": check_entity["options"]})
     else:
         for check_entity in check_entity_list:
-            for slot in intent["slots"]:
-                if slot["entity"] == check_entity['entity__entity']:
-                    slots.append({"entity": slot["entity"], "value": slot["value"]["value"]})
-                    intent["slots"].remove(slot)
-                    break
-            for slot in intent["slots"]:
-                if slot["entity"] != check_entity['entity__entity']:
-                    context_vars.append({"question": check_entity["clear_question"], "entity": slot["entity"],
-                                         "options": check_entity["options"]})
-                    break
-
-    intent["context_vars"] = context_vars
+            if "slots" in intent:
+                for slot in intent["slots"]:
+                    if slot["entity"] == check_entity['entity__entity']:
+                        slots.append({"entity": slot["entity"], "value": slot["value"]["value"]})
+                        intent["slots"].remove(slot)
+                        break
+                for slot in intent["slots"]:
+                    if slot["entity"] != check_entity['entity__entity']:
+                        context_vars.append({"question": check_entity["clear_question"], "entity": slot["entity"],
+                                             "options": check_entity["options"]})
+                        break
+    if len(context_vars) > 0:
+        intent["context_vars"] = context_vars
     intent['slots'] = []
     return intent
 
@@ -150,21 +149,22 @@ def check_entities(intent):
         if "slots" in intent:
             if len(intent["slots"]) > 0:
                 for slot in intent["slots"]:
-                    # print("SLOT CHEKING " + slot["entity"])
+                    print("SLOT CHEKING " + slot["entity"])
                     for entity_check in check_entity_list:
-                        # print(entity_check)
+                        print(entity_check)
                         if slot["entity"] != entity_check["entity__entity"]:
-                            return False
-                state = True
+                            state = False
+                            break
 
         elif len(intent["context"]) > 0:
-            state = False
+            state = True
             for context_value in intent["context"]:
-                # print("CONTEXT CHEKING " + context_value["entity"])
+                print("CONTEXT CHEKING " + context_value["entity"])
                 for entity_check in check_entity_list:
-                    # print(entity_check)
+                    print(entity_check)
                     if context_value["entity"] != entity_check["entity__entity"]:
-                        return False
+                        state = False
+                        break
             state = True
 
         return state
