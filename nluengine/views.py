@@ -43,23 +43,6 @@ def nlu_engine(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET'])
-def get_answer(request):
-    """
-    End point where user request must arrive.
-    :param request:
-    :return:
-    """
-    if request.method == 'GET':
-        serializer = IntentSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            intent = serializer.validated_data["intent"]
-            answer = Intents.objects.values('answer').get(name=intent)["answer"]
-            return Response(answer, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 def upload_file(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)

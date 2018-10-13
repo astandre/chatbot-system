@@ -23,12 +23,19 @@ class UsersAdmin(admin.ModelAdmin):
 
 
 class AnswersAdmin(admin.ModelAdmin):
-    list_display = ('answer', 'intent', 'options')
+    list_display = ('answer', 'intent')
     list_filter = ['intent']
     search_fields = ['answer']
+
+
+class EntityCheckAdmin(admin.ModelAdmin):
+    list_display = ('clear_question', 'intent', 'options','entity')
+    list_filter = ['intent', 'entity']
+    search_fields = ['clear_question']
 
 
 admin.site.register(SocialNetworks, SocialNetworksAdmin)
 admin.site.register(Inputs, InputsAdmin)
 admin.site.register(Users, UsersAdmin)
 admin.site.register(Answers, AnswersAdmin)
+admin.site.register(EntityCheck, EntityCheckAdmin)

@@ -1,5 +1,6 @@
 from django.db import models
-from nluengine.models import Intents
+from nluengine.models import Intents, Entities
+from django.contrib.postgres.fields import ArrayField
 
 
 # Create your models here.
@@ -77,7 +78,6 @@ class Answers(models.Model):
     id_answer = models.AutoField(primary_key=True)
     intent = models.ForeignKey(Intents, on_delete=models.CASCADE, blank=True)
     answer = models.CharField(max_length=400, blank=True, null=False)
-    options = models.CharField(max_length=300, null=True, blank=True)
 
     class Meta:
         default_related_name = 'answers'
@@ -87,3 +87,21 @@ class Answers(models.Model):
 
     def __str__(self):
         return self.answer
+
+
+class EntityCheck(models.Model):
+    id_intent_check = models.AutoField(primary_key=True)
+    intent = models.ForeignKey(Intents, on_delete=models.CASCADE)
+    clear_question = models.CharField(max_length=400, blank=True, null=False)
+    # options = ArrayField(models.CharField(max_length=400), blank=True, null=True)
+    options = models.CharField(max_length=400, blank=True, null=True)
+    entity = models.ForeignKey(Entities, on_delete=models.CASCADE)
+
+    class Meta:
+        default_related_name = 'entitycheck'
+        verbose_name = "EntityCheck"
+        verbose_name_plural = "EntityCheck"
+        db_table = 'entitycheck'
+
+    def __str__(self):
+        return self.clear_question

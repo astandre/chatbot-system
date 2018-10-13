@@ -2,6 +2,8 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+from django.http import HttpResponse
+from django.template import loader
 from .serializers import *
 from .intent_handler import *
 
@@ -42,11 +44,29 @@ def new_input(request):
                     "intent": serializer.validated_data["intent"],
                     "context": serializer.validated_data["context"]
                 }
-            print("ENTRY DATA IH >>> ", intent)
+            print("ENTRY DATA >>> ", intent)
             if intent["intent"] is not None:
-                intent = intent_handler(intent)
-                intent_answer = Intents.objects.get(name=intent["intent"])
-                Inputs.objects.filter(id_input=last_input_id["id_input"]).update(
-                    intent=intent_answer, solved=True)
+                if check_entities(intent):
+                    print("All data required")
+                    print("SLOTS TO CONTEXT ", intent)
+                    intent = slots_to_context(intent)
+                    print("ENTRY DATA IH >>> ", intent)
+                    intent = intent_handler(intent)
+                    intent_answer = Intents.objects.get(name=intent["intent"])
+                    Inputs.objects.filter(id_input=last_input_id["id_input"]).update(
+                        intent=intent_answer, solved=True)
+                else:
+                    intent = resolve_missing_entities(intent)
+            print("EXIT DATA >>> ", intent)
             return Response(intent, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+def chat(request):
+    """
+    Chat WebPage
+    """
+
+    template = loader.get_template('chatbothandler/chat.html')
+    context = {}
+    return HttpResponse(template.render(context, request))

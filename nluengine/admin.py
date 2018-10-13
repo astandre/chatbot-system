@@ -24,7 +24,7 @@ class QuestionsAdmin(admin.ModelAdmin):
 
 class IntentsAdmin(admin.ModelAdmin):
     inlines = [QuestionsInline]
-    list_display = ('name', 'description' )
+    list_display = ('name', 'description')
     search_fields = ['name']
 
 
@@ -69,16 +69,9 @@ class SynonymsAdmin(admin.ModelAdmin):
     search_fields = ['synonym']
 
 
-class IntentCheckAdmin(admin.ModelAdmin):
-    list_display = ('clear_question', 'intent', 'entity')
-    list_filter = ['intent','entity']
-    search_fields = ['clear_question']
-
-
 admin.site.register(Intents, IntentsAdmin)
 admin.site.register(Questions, QuestionsAdmin)
 admin.site.register(Entities, EntitiesAdmin)
 admin.site.register(Values, ValuesAdmin)
 admin.site.register(Synonyms, SynonymsAdmin)
 admin.site.register(Slots, SlotsAdmin)
-admin.site.register(IntentCheck, IntentCheckAdmin)
