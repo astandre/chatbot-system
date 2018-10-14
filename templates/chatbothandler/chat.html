@@ -1,14 +1,224 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block head %}
+    <link rel="stylesheet" href="{% static 'chatbothandler/css/setup.css' %}">
+    <link rel="stylesheet" href="{% static 'chatbothandler/css/says.css' %}">
+    <link rel="stylesheet" href="{% static 'chatbothandler/css/reply.css' %}">
+    <link rel="stylesheet" href="{% static 'chatbothandler/css/typing.css' %}">
+    <link rel="stylesheet" href="{% static 'chatbothandler/css/input.css' %}">
+    <script src="{% static 'chatbothandler/js/Bubbles.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+    <script src="{% static 'nluengine/js/moment.min.js' %}"></script>
 {% endblock %}
 {% block title %}Chat Online{% endblock %}
 {% block main %}
-<script async src="https://telegram.org/js/telegram-widget.js?4" data-telegram-login="durov" data-size="medium" data-onauth="onTelegramAuth(user)" data-request-access="write"></script>
-<script type="text/javascript">
-  function onTelegramAuth(user) {
-    alert('Logged in as ' + user.first_name + ' ' + user.last_name + ' (' + user.id + (user.username ? ', @' + user.username : '') + ')');
-  }
-</script>
-    <blockquote class="twitter-tweet"><p lang="en" dir="ltr">Sunsets don&#39;t get much better than this one over <a href="https://twitter.com/GrandTetonNPS?ref_src=twsrc%5Etfw">@GrandTetonNPS</a>. <a href="https://twitter.com/hashtag/nature?src=hash&amp;ref_src=twsrc%5Etfw">#nature</a> <a href="https://twitter.com/hashtag/sunset?src=hash&amp;ref_src=twsrc%5Etfw">#sunset</a> <a href="http://t.co/YuKy2rcjyU">pic.twitter.com/YuKy2rcjyU</a></p>&mdash; US Department of the Interior (@Interior) <a href="https://twitter.com/Interior/status/463440424141459456?ref_src=twsrc%5Etfw">May 5, 2014</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+    <div id="chat"></div>
+    <script>
+        // initialize by constructing a named function...
+        // ...and add text processing plugin:
+        var chatWindow = new Bubbles(document.getElementById("chat"), "chatWindow", {
+            // the one that we care about is inputCallbackFn()
+            // this function returns an object with some data that we can process from user input
+            // and understand the context of it
+
+            // this is an example function that matches the text user typed to one of the answer bubbles
+            // this function does no natural language processing
+            // this is where you may want to connect this script to NLC backend.
+            inputCallbackFn: function (o) {
+                // add error conversation block & recall it if no answer matched
+                console.log(o);
+                search(o["input"]);
+                {#chatWindow.talk(#}
+                {#    {#}
+                {#        ice: {#}
+                {#            says: [o["input"]]#}
+                {#        }#}
+                {#    }#}
+                {#);#}
+                var miss = function () {
+                    console.log(o["input"]);
+                    chatWindow.talk(
+                        {
+                            response: {
+                                says: [
+                                    o["input"]
+                                ],
+
+                            }
+                        },
+                    )
+                };
+
+                // do this if answer found
+                var match = function (key) {
+                    setTimeout(function () {
+                        chatWindow.talk(convo, key) // restart current convo from point found in the answer
+                    }, 600)
+                };
+
+                // sanitize text for search function
+                var strip = function (text) {
+                    return text.toLowerCase().replace(/[\s.,\/#!$%\^&\*;:{}=\-_'"`~()]/g, "")
+                };
+
+                // search function
+                var found = false;
+                // o.convo[o.standingAnswer].reply.forEach(function (e, i) {
+                //     console.log(e);
+                //     strip(e.question).includes(strip(o.input)) && o.input.length > 0
+                //         ? (found = e.answer)
+                //         : found ? null : (found = false)
+                // });
+                // found ? match(found) : miss()
+            }
+        });// done setting up chat-bubble
+        // Intializing data in chat
+        var convo = {
+            ice: {
+                says: ["Hola", "En que te puedo ayudar?"]
+            }
+        };
+        // pass JSON to your function and you're done!
+        chatWindow.talk(convo);
+        // Searching data
+        var context = [];
+        var csrftoken = Cookies.get('csrftoken');
+        var state = false;
+        var last_JSON = {};
+        var cont_questions = 0;
+        var total_questions = 0;
+        var options;
+
+        function search(input) {
+            var date = moment().format('YYYY-MM-DDTHH:mm:ss');
+            // Un comment this to test against engine directly
+            // var query = '{"query":"' + document.getElementById("searchbar").value + '"}';
+            if (state) {
+                var add = true;
+                for (var i = 0; i < context.length; i++) {
+                    console.log(context[i]["entity"]);
+                    console.log(last_JSON["context_vars"][0]["entity"]);
+                    if (context[i]["entity"] === last_JSON["context_vars"][0]["entity"]) {
+                        console.log("Iguales");
+                        context[i]["value"] = input;
+                        add = false;
+                        break
+                    }
+                }
+                if (add) {
+                    context.push({"value": input, "entity": last_JSON["context_vars"][0]["entity"]});
+                }
+            }
+            if (total_questions > 0) {
+                chatWindow.talk(
+                    {
+                        ice: {
+                            says: [last_JSON['context_vars'][cont_questions]["question"]]
+                        }
+                    }
+                );
+                cont_questions = cont_questions + 1;
+                total_questions = total_questions - 1;
+            } else {
+                var query = {
+                    "created_at": date,
+                    "text": input,
+                    "social_network": {"id_account": 4, "social_network": "W"}, "context": context
+                };
+                if ("intent" in last_JSON) {
+                    query["intent"] = last_JSON["intent"];
+                }
+                // Un comment this to test against engine directly
+                var URL = "/handler/user/input/";
+                console.log(">>> SENT");
+                console.log(query);
+                makeAjaxCall(URL, "POST", JSON.stringify(query)).then(function (respJson) {
+                        console.log(">>> RECEIVED");
+                        console.log(respJson);
+
+                        if ("context_vars" in respJson) {
+                            {#TODO add options#}
+                            var resp = {"ice": {}};
+
+                            if ("options" in respJson["context_vars"][0] && respJson["context_vars"][0]["options"] != null) {
+                                {#$("#options").show();#}
+                                options = respJson["context_vars"][0]['options'].split(",");
+                                var option = [];
+                                options.forEach(function (valor, indice) {
+                                    option.push({question:valor});
+
+                                });
+                                {#resp["ice"]["reply"] = option;#}
+                            }
+                            state = true;
+                            total_questions = respJson["context_vars"].length;
+                           var question = respJson['context_vars'][cont_questions]["question"];
+                            console.log(question);
+                            resp["ice"]= {says:[question],reply:option};
+                            console.log(resp);
+                            chatWindow.talk(resp);
+                            cont_questions = cont_questions + 1;
+                            total_questions = total_questions - 1;
+                        }
+                        else {
+                            if (respJson['intent'] != null) {
+                                chatWindow.talk(
+                                    {
+                                        ice: {
+                                            says: [respJson['answer']]
+                                        }
+                                    }
+                                );
+                                if (respJson["solved"] === true) {
+                                    delete respJson["solved"];
+                                    delete respJson["intent"];
+
+                                }
+                            } else {
+                                var resp = "Aun no conozco a que te refieres con: " + respJson['input'];
+                                chatWindow.talk(
+                                    {
+                                        ice: {
+                                            says: [resp]
+                                        }
+                                    }
+                                );
+                            }
+                        }
+
+                        last_JSON = respJson;
+
+                    },
+                    function (reason) {
+                        console.log("error in processing your request", reason);
+                    }
+                );
+
+            }
+
+        }
+
+
+        function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+
+        function makeAjaxCall(url, methodType, data, callback) {
+            state = false;
+            return $.ajax({
+                url: url,
+                method: methodType,
+                dataType: "json",
+                contentType: 'application/json',
+                beforeSend: function (xhr, settings) {
+                    if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
+                },
+                data: data,
+            });
+
+        }
+    </script>
 {% endblock %}
