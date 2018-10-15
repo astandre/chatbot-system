@@ -79,7 +79,7 @@ def intent_handler(intent):
                     intent.pop("context_vars", None)
                 intent["solved"] = True
             else:
-                intent["answer"] = "No se ha podido encontrar el curso " +curso_name
+                intent["answer"] = "No se ha podido encontrar el curso " + curso_name
         else:
             print("Curso name not found")
     elif intent["intent"] == "prerrequitosCurso":
@@ -144,29 +144,24 @@ def check_entities(intent):
 
     check_entity_list = list(EntityCheck.objects.values('entity__entity', 'clear_question', 'options').filter(
         intent__id_intent=answer["id_intent"]))
-    state = False
+    print(check_entity_list)
+    checked_items = [False] * len(check_entity_list)
+    print(checked_items)
+    state = True
     if len(check_entity_list) > 0:
-        if "slots" in intent:
-            if len(intent["slots"]) > 0:
-                for slot in intent["slots"]:
-                    print("SLOT CHEKING " + slot["entity"])
-                    for entity_check in check_entity_list:
-                        print(entity_check)
-                        if slot["entity"] != entity_check["entity__entity"]:
-                            state = False
-                            break
-
-        elif len(intent["context"]) > 0:
-            state = True
-            for context_value in intent["context"]:
-                print("CONTEXT CHEKING " + context_value["entity"])
-                for entity_check in check_entity_list:
-                    print(entity_check)
-                    if context_value["entity"] != entity_check["entity__entity"]:
-                        state = False
-                        break
-            state = True
-
+        i = 0
+        for context_value in intent["context"]:
+            print("CONTEXT CHEKING " + context_value["entity"])
+            for entity_check in check_entity_list:
+                print(entity_check)
+                if context_value["entity"] == entity_check["entity__entity"]:
+                    checked_items[i] = True
+            i += 1
+        print(checked_items)
+        for item in checked_items:
+            if item is False:
+                state = False
+                break
         return state
     else:
         return True

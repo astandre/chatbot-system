@@ -28,48 +28,6 @@
                 // add error conversation block & recall it if no answer matched
                 console.log(o);
                 search(o["input"]);
-                {#chatWindow.talk(#}
-                {#    {#}
-                {#        ice: {#}
-                {#            says: [o["input"]]#}
-                {#        }#}
-                {#    }#}
-                {#);#}
-                var miss = function () {
-                    console.log(o["input"]);
-                    chatWindow.talk(
-                        {
-                            response: {
-                                says: [
-                                    o["input"]
-                                ],
-
-                            }
-                        },
-                    )
-                };
-
-                // do this if answer found
-                var match = function (key) {
-                    setTimeout(function () {
-                        chatWindow.talk(convo, key) // restart current convo from point found in the answer
-                    }, 600)
-                };
-
-                // sanitize text for search function
-                var strip = function (text) {
-                    return text.toLowerCase().replace(/[\s.,\/#!$%\^&\*;:{}=\-_'"`~()]/g, "")
-                };
-
-                // search function
-                var found = false;
-                // o.convo[o.standingAnswer].reply.forEach(function (e, i) {
-                //     console.log(e);
-                //     strip(e.question).includes(strip(o.input)) && o.input.length > 0
-                //         ? (found = e.answer)
-                //         : found ? null : (found = false)
-                // });
-                // found ? match(found) : miss()
             }
         });// done setting up chat-bubble
         // Intializing data in chat
@@ -91,8 +49,6 @@
 
         function search(input) {
             var date = moment().format('YYYY-MM-DDTHH:mm:ss');
-            // Un comment this to test against engine directly
-            // var query = '{"query":"' + document.getElementById("searchbar").value + '"}';
             if (state) {
                 var add = true;
                 for (var i = 0; i < context.length; i++) {
@@ -128,32 +84,26 @@
                 if ("intent" in last_JSON) {
                     query["intent"] = last_JSON["intent"];
                 }
-                // Un comment this to test against engine directly
                 var URL = "/handler/user/input/";
                 console.log(">>> SENT");
                 console.log(query);
                 makeAjaxCall(URL, "POST", JSON.stringify(query)).then(function (respJson) {
                         console.log(">>> RECEIVED");
                         console.log(respJson);
-
                         if ("context_vars" in respJson) {
-                            {#TODO add options#}
                             var resp = {"ice": {}};
-
                             if ("options" in respJson["context_vars"][0] && respJson["context_vars"][0]["options"] != null) {
                                 {#$("#options").show();#}
                                 options = respJson["context_vars"][0]['options'].split(",");
                                 var option = [];
                                 options.forEach(function (valor, indice) {
                                     option.push({question:valor});
-
                                 });
-                                {#resp["ice"]["reply"] = option;#}
                             }
                             state = true;
                             total_questions = respJson["context_vars"].length;
-                           var question = respJson['context_vars'][cont_questions]["question"];
-                            console.log(question);
+                             console.log(cont_questions);
+                            var question = respJson['context_vars'][cont_questions]["question"];
                             resp["ice"]= {says:[question],reply:option};
                             console.log(resp);
                             chatWindow.talk(resp);
@@ -172,10 +122,9 @@
                                 if (respJson["solved"] === true) {
                                     delete respJson["solved"];
                                     delete respJson["intent"];
-
                                 }
                             } else {
-                                var resp = "Aun no conozco a que te refieres con: " + respJson['input'];
+                                 resp = "Aun no conozco a que te refieres con: " + respJson['input'];
                                 chatWindow.talk(
                                     {
                                         ice: {

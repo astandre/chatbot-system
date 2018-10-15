@@ -46,10 +46,10 @@ def new_input(request):
                 }
             print("ENTRY DATA >>> ", intent)
             if intent["intent"] is not None:
+                intent = slots_to_context(intent)
+                print("SLOTS TO CONTEXT ", intent)
                 if check_entities(intent):
                     print("All data required")
-                    print("SLOTS TO CONTEXT ", intent)
-                    intent = slots_to_context(intent)
                     print("ENTRY DATA IH >>> ", intent)
                     intent = intent_handler(intent)
                     intent_answer = Intents.objects.get(name=intent["intent"])
