@@ -29,4 +29,4 @@ snips-nlu-ontology==0.57.3
 snips-nlu-utils==0.6.1
 tabulate==0.8.2
 tqdm==4.25.0
-urllib3==1.23
+urllib3==1.26.5
